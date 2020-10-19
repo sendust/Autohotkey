@@ -1,0 +1,90 @@
+socket.ahk ------------
+
+[DllImport("Ws2_32.dll")]
+    public static extern int setsockopt(IntPtr s, SocketOptionLevel level, SocketOptionName optname, ref int optval, int optlen);
+
+	
+	
+	https://docs.microsoft.com/en-us/windows/win32/winsock/ipproto-ip-socket-options
+	https://docs.microsoft.com/en-us/troubleshoot/windows/win32/header-library-requirement-socket-ipproto-ip
+	https://docs.microsoft.com/en-us/windows/win32/api/winsock2/ns-winsock2-in_addr
+	
+	
+	
+C++
+
+Copy
+int setsockopt(
+  SOCKET     s,
+  int        level,				; level = IPPROTO_IP  = 0 
+  int        optname,			; IP_ADD_MEMBERSHIP 	, optval Type ip_mreq  = 12
+  const char *optval,
+  int        optlen
+);
+
+
+
+
+typedef struct ip_mreq {
+  IN_ADDR imr_multiaddr;
+  IN_ADDR imr_interface;
+} IP_MREQ, *PIP_MREQ;
+
+
+Members
+imr_multiaddr
+
+The address of the IPv4 multicast group.
+imr_interface
+The local IPv4 address of the interface or the interface index on which the multicast group should be joined or dropped. This value is in network byte order. If this member specifies an IPv4 address of 0.0.0.0, the default IPv4 multicast interface is used.
+To use an interface index of 1 would be the same as an IP address of 0.0.0.1.
+
+
+
+struct in_addr {
+  union {
+    struct {
+      u_char s_b1;
+      u_char s_b2;
+      u_char s_b3;
+      u_char s_b4;
+    } S_un_b;
+    struct {
+      u_short s_w1;
+      u_short s_w2;
+    } S_un_w;
+    u_long S_addr;
+  } S_un;
+};
+
+
+==========================================================================================
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <winsock.h>
+
+int main(int argc, char* argv[])
+{
+   ...
+   if (setsockopt(sock,
+                  IPPROTO_IP,
+                  IP_ADD_MEMBERSHIP,
+                  (char FAR *)&mreq,
+                  sizeof (mreq)) == SOCKET_ERROR)
+   {
+      printf ("setsockopt failed: %d"), WSAGetLastError());
+      closesocket (sock);
+      return FALSE;
+   }
+   ...
+}
+
+
+==========================================================================================
+
+
+
+
+
+
